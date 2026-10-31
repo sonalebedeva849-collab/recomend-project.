@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recom — Видеоплатформа</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #101114;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 6%;
+    background: #18191e;
+    border-bottom: 1px solid #292a30;
+}
+
+.logo {
+    font-size: 27px;
+    font-weight: bold;
+    color: #a78bfa;
+}
+
+.search {
+    width: 40%;
+    padding: 13px 18px;
+    border-radius: 25px;
+    border: 1px solid #383942;
+    background: #24252b;
+    color: white;
+    outline: none;
+}
+
+.profile {
+    background: #a78bfa;
+    color: #17151e;
+    padding: 11px 18px;
+    border-radius: 20px;
+    font-weight: bold;
+}
+
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 220px;
+    padding: 30px 20px;
+    min-height: calc(100vh - 75px);
+    background: #18191e;
+}
+
+.sidebar p {
+    padding: 15px;
+    margin-bottom: 8px;
+    color: #b8b8c5;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.sidebar p:hover,
+.sidebar .active {
+    background: #30303d;
+    color: #a78bfa;
+}
+
+main {
+    flex: 1;
+    padding: 35px;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    color: #9999a8;
+    margin-bottom: 30px;
+}
+
+.categories {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.category {
+    padding: 10px 19px;
+    background: #272830;
+    border-radius: 20px;
+    cursor: pointer;
+    color: #ddd;
+    border: none;
+}
+
+.category:hover,
+.category.selected {
+    background: #a78bfa;
+    color: #17151e;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 25px;
+}
+
+.video {
+    background: #1c1d23;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: 0.2s;
+}
+
+.video:hover {
+    transform: translateY(-5px);
+}
+
+.thumbnail {
+    height: 145px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+}
+
+.video-info {
+    padding: 16px;
+}
+
+.video-info h3 {
+    font-size: 16px;
+    margin-bottom: 9px;
+}
+
+.video-info p {
+    color: #9999a8;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.like {
+    background: #30303a;
+    border: none;
+    color: white;
+    padding: 8px 13px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.like.liked {
+    background: #a78bfa;
+    color: #17151e;
+}
+
+.recommendation {
+    margin-top: 35px;
+    padding: 22px;
+    border: 1px solid #5b4b86;
+    background: #201c2d;
+    border-radius: 14px;
+}
+
+.recommendation h2 {
+    color: #c4b5fd;
+    margin-bottom: 10px;
+}
+
+.recommendation p {
+    color: #c1bdce;
+    line-height: 1.6;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #777;
+    font-size: 13px;
+}
+
+max-width: 700px {
+
+    header {
+        height: auto;
+        min-height: 70px;
+        padding: 12px 15px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .logo {
+        font-size: 23px;
+    }
+
+    .profile {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .search {
+        order: 3;
+        width: 100%;
+        padding: 11px 15px;
+    }
+
+    .sidebar {
+        display: none;
+    }
+
+    main {
+        padding: 25px 15px;
+    }
+
+    h1 {
+        font-size: 25px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .categories {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 8px;
+    }
+
+    .category {
+        white-space: nowrap;
+        padding: 9px 15px;
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .thumbnail {
+        height: 180px;
+    }
+
+    .recommendation {
+        margin-top: 25px;
+        padding: 18px;
+    }
+
+    .recommendation h2 {
+        font-size: 20px;
+    }
+
+    footer {
+        padding: 20px 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">recom.</div>
+    <input class="search" id="search"
+        placeholder="Поиск видео..."
+        oninput="renderVideos()">
+    <div class="profile">Пользователь</div>
+</header>
+
+<div class="container">
+
+<aside class="sidebar">
+    <p class="active" onclick="selectCategory('Все')">⌂ Главная</p>
+    <p onclick="selectCategory('Музыка')">♫ Музыка</p>
+    <p onclick="selectCategory('Игры')">🎮 Игры</p>
+    <p onclick="selectCategory('Наука')">⚗ Наука</p>
+    <p onclick="selectCategory('Технологии')">💻 Технологии</p>
+    <p onclick="selectCategory('Образование')">📚 Обучение</p>
+</aside>
+
+<main>
+
+<h1>Добро пожаловать!</h1>
+<p class="subtitle">
+    Видео, подобранные специально для вас.
+</p>
+
+<div class="categories">
+
+    <button class="category selected"
+
+        onclick="selectCategory('Все')">Все</button>
+
+    <button class="category"
+
+        onclick="selectCategory('Музыка')">Музыка</button>
+
+    <button class="category"
+
+        onclick="selectCategory('Игры')">Игры</button>
+
+    <button class="category"
+
+        onclick="selectCategory('Наука')">Наука</button>
+
+    <button class="category"
+
+        onclick="selectCategory('Технологии')">Технологии</button>
+
+    <button class="category"
+
+        onclick="selectCategory('Образование')">Образование</button>
+
+</div>
+
+<h2 style="margin-bottom:20px">Рекомендовано вам ✨</h2>
+
+<div class="video-grid" id="videos"></div>
+
+<div class="recommendation">
+
+    <h2>🧠 Как работает алгоритм?</h2>
+
+    <p id="algorithmText">
+
+        Алгоритм анализирует ваши интересы и взаимодействия
+
+        с видео, чтобы подобрать наиболее подходящий контент.
+
+        Поставьте лайк нескольким видео, чтобы изменить рекомендации.
+
+    </p>
+
+</div>
+
+</main>
+
+</div>
+
+<footer>
+
+    RECOM © 2026 | Учебный проект
+
+    «Модель рекомендательного алгоритма видеоплатформы»
+
+</footer>
+
+<script>
+
+const videos = [
+
+    {id:1, title:"Как создают искусственный интеллект",
+
+    category:"Технологии", icon:"🤖", color:"#493b75",
+
+    views:"125 тыс."},
+
+    {id:2, title:"Музыка, которую стоит услышать",
+
+    category:"Музыка", icon:"🎧", color:"#75415e",
+
+    views:"89 тыс."},
+
+    {id:3, title:"Как работает космос?",
+
+    category:"Наука", icon:"🌌", color:"#344e76",
+
+    views:"210 тыс."},
+
+    {id:4, title:"Создание первой игры на Python",
+
+    category:"Игры", icon:"🎮", color:"#35685c",
+
+    views:"56 тыс."},
+
+    {id:5, title:"Учимся программировать с нуля",
+
+    category:"Образование", icon:"💻", color:"#755b38",
+
+    views:"98 тыс."},
+
+    {id:6, title:"История развития технологий",
+
+    category:"Технологии", icon:"📱", color:"#425b72",
+
+    views:"72 тыс."},
+
+    {id:7, title:"Как устроен мозг человека",
+
+    category:"Наука", icon:"🧠", color:"#67466e",
+
+    views:"145 тыс."},
+
+    {id:8, title:"Популярные игровые миры",
+
+    category:"Игры", icon:"🕹️", color:"#3c6850",
+
+    views:"67 тыс."}
+
+];
+
+let likedVideos = [];
+
+let selectedCategory = "Все";
+
+// Функция рекомендательного алгоритма
+
+function calculateScore(video) {
+
+    let score = 0;
+
+    // Лайк видео повышает интерес к его категории
+
+    likedVideos.forEach(id => {
+
+        const liked = videos.find(v => v.id === id);
+
+        if (liked && liked.category === video.category) {
+
+            score += 10;
+
+        }
+
+    });
+
+    // Дополнительный балл за популярность
+
+    score += parseInt(video.views) / 100;
+
+    return score;
+
+}
+
+// Сортировка видео по оценке алгоритма
+
+function getRecommendations() {
+
+    return [...videos].sort((a, b) =>
+
+        calculateScore(b) - calculateScore(a)
+
+    );
+
+}
+
+// Отображение видео
+
+function renderVideos() {
+
+    const container = document.getElementById("videos");
+
+    const search = document.getElementById("search").value.toLowerCase();
+
+    let filtered = getRecommendations();
+
+    if (selectedCategory !== "Все") {
+
+        filtered = filtered.filter(v =>
+
+            v.category === selectedCategory
+
+        );
+
+    }
+
+    filtered = filtered.filter(v =>
+
+        v.title.toLowerCase().includes(search)
+
+    );
+
+    container.innerHTML = "";
+
+    filtered.forEach(video => {
+
+        const isLiked = likedVideos.includes(video.id);
+
+        container.innerHTML += `
+
+            <div class="video">
+
+                <div class="thumbnail"
+
+                    style="background:${video.color}">
+
+                    ${video.icon}
+
+                </div>
+
+                <div class="video-info">
+
+                    <h3>${video.title}</h3>
+
+                    <p>${video.category} · ${video.views} просмотров</p>
+
+                    <button class="like ${isLiked ? 'liked' : ''}"
+
+                        onclick="toggleLike(${video.id})">
+
+                        ${isLiked ? '♥ Вам нравится' : '♡ Нравится'}
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+    ateAlgorithmText();
+
+}
+
+// Обработка лайков
+
+function toggleLike(id) {
+
+    if (likedVideos.includes(id)) {
+
+        likedVideos = likedVideos.filter(item => item !== id);
+
+    } else {
+
+        likedVideos.push(id);
+
+    }
+
+    renderVideos();
+
+}
+
+// Выбор категории
+
+function selectCategory(category) {
+
+    selectedCategory = category;
+
+    document.querySelectorAll(".category").forEach(button => {
+
+        button.classList.toggle(
+
+            "selected",
+
+            button.textContent.trim() === category ||
+
+            (category === "Все" && button.textContent.trim() === "Все")
+
+        );
+
+    });
+
+    renderVideos();
+
+}
+
+// Обновление объяснения алгоритма
+
+function updateAlgorithmText() {
+
+    const text = document.getElementById("algorithmText");
+
+    if (likedVideos.length === 0) {
+
+        text.textContent =
+
+            "Пока у вас нет лайков. Алгоритм использует популярность видео для формирования рекомендаций.";
+
+        return;
+
+    }
+
+    const interests = {};
+
+    likedVideos.forEach(id => {
+
+        const video = videos.find(v => v.id === id);
+
+        interests[video.category] =
+
+            (interests[video.category] || 0) + 1;
+
+    });
+
+    const favorite = Object.entries(interests)
+
+        .sort((a, b) => b[1] - a[1])[0][0];
+
+    text.textContent =
+
+        `Вы поставили лайки ${likedVideos.length} видео. ` +
+
+        `Ваш наиболее выраженный интерес — категория "${favorite}". ` +
+
+        `Алгоритм увеличивает оценку видео этой категории и ` +
+
+        `поднимает их выше в рекомендациях.`;
+
+}
+
+// Первый запуск
+
+renderVideos();
+
+</script>
+
+</body>
+
+</html> 
